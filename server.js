@@ -91,14 +91,15 @@ app.post('/asiakas', (req,res) => {
     let osoite = req.body.Osoite
     let postinro = req.body.Postinro;
     let postitmp = req.body.Postitmp;
+    let sahkoposti = req.body.Sahkoposti;
 
 
 
-    let query = "INSERT INTO asiakas (Etunimi, Sukunimi, Osoite, Postinro, Postitmp) values (?, ?, ?, ?, ?)";
+    let query = "INSERT INTO asiakas (Etunimi, Sukunimi, Osoite, Postinro, Postitmp, Sahkoposti) values (?, ?, ?, ?, ?, ?)";
 
     console.log("query:" + query);
 
-    connection.query(query, [etunimi,sukunimi,osoite,postinro,postitmp], function(error,result,fields) {
+    connection.query(query, [etunimi,sukunimi,osoite,postinro,postitmp,sahkoposti], function(error,result,fields) {
 
         if (error) {
 
@@ -111,7 +112,7 @@ app.post('/asiakas', (req,res) => {
 
             console.log("R:" , result);
             res.statusCode = 201;
-            res.json({id: result.insertid, etunimi : etunimi, sukunimi : sukunimi, osoite : osoite, postinro : postinro, postitmp : postitmp})
+            res.json({id: result.insertid, etunimi : etunimi, sukunimi : sukunimi, osoite : osoite, postinro : postinro, postitmp : postitmp, sahkoposti : sahkoposti})
         }
     })
 
