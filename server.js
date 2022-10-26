@@ -27,9 +27,8 @@ var connection = mysql.createConnection({
     dateStrings : true
 });
 
-// REST api -> GET 
+
 app.get('/asiakas', (req,res) => {
-    // localhost:3000/asiakas
     
     console.log("/asiakas. REQ:", req.query);
     let query = "SELECT * from asiakas";
