@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+const { query } = require('express');
 
 let port = 3004;
 let hostname = "127.0.0.1";
@@ -22,7 +23,7 @@ var connection = mysql.createConnection({
     host : 'localhost',
     user : 'root',      
     password : 'root',
-    database : 'customer',
+    database : 'kandityo',
     dateStrings : true
 });
 
@@ -50,6 +51,113 @@ app.get('/asiakas', (req,res) => {
     });
 
     console.log("Kysely tehty")
+});
+
+app.delete('/asiakas/:id', (req,res) => {
+
+    console.log("/asiakas. PARAMS:", req.params);
+
+    let id = req.params.id;
+
+    let query = "DELETE FROM asiakas where ID = ?";
+
+    console.log("query: " + query);
+
+    connection.query(query, [id],function(error, result, fields) {
+
+        if (error) {
+
+            console.log("VIRHE");
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe"});
+        }
+
+        else {
+
+            console.log("R:" , result);
+            res.statusCode = 204;
+            res.json();
+        }
+    })
+
+
+});
+
+app.post('/asiakas', (req,res) => {
+
+    console.log("/asiakas. BODY:" ,req.body);
+
+    let etunimi = req.body.Etunimi;
+    let sukunimi = req.body.Sukunimi;
+    let osoite = req.body.Osoite
+    let postinro = req.body.Postinro;
+    let postitmp = req.body.Postitmp;
+
+
+
+    let query = "INSERT INTO asiakas (Etunimi, Sukunimi, Osoite, Postinro, Postitmp) values (?, ?, ?, ?, ?)";
+
+    console.log("query:" + query);
+
+    connection.query(query, [etunimi,sukunimi,osoite,postinro,postitmp], function(error,result,fields) {
+
+        if (error) {
+
+            console.log("VIRHE", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+
+        else {
+
+            console.log("R:" , result);
+            res.statusCode = 201;
+            res.json({id: result.insertid, etunimi : etunimi, sukunimi : sukunimi, osoite : osoite, postinro : postinro, postitmp : postitmp})
+        }
+    })
+
+
+});
+
+app.put('/asiakas/:id', (req,res) => {
+
+    console.log("/asiakas. PARAMS", req.params);
+    console.log("/asiakas", req.body);
+
+    let etunimi = req.body.Etunimi;
+    let sukunimi = req.body.Sukunimi;
+    let osoite = req.body.Osoite
+    let postinro = req.body.Postinro;
+    let postitmp = req.body.Postitmp;
+
+    let id = req.params.id;
+
+    let query = "UPDATE asiakas SET Etunimi=?, Sukunimi=?, Osoite=?, Postinro=?, Postitmp=? WHERE ID=?";
+
+    console.log("query:" + query);
+
+    connection.query(query, [etunimi, sukunimi, osoite, postinro, postitmp, id], function(error, result, fields) {
+
+        if (error) {
+
+            console.log("VIRHE!", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe"});
+    
+        }
+
+        else {
+
+            console.log("R:",result);
+            res.statusCode = 204;
+
+            res.json();
+        }
+
+    })
+
+
+
 });
 
 /******************************* */
