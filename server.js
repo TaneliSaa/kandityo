@@ -20,6 +20,7 @@ var cors = function (req, res, next)
 
 app.use(cors);
 
+//Esimerkin vuoksi käyttäjä ja salasana root root, ei sitten oikeissa töissä näin
 var connection = mysql.createConnection({
     host : 'localhost',
     user : 'root',      
@@ -28,11 +29,18 @@ var connection = mysql.createConnection({
     dateStrings : true
 });
 
-
+//GET
 app.get('/asiakas', (req,res) => {
     
     console.log("/asiakas. REQ:", req.query);
     let query = "SELECT * from asiakas";
+
+    let tunnus = req.query.Sahkoposti;
+
+    let salasana = req.query.Salasana;
+
+    
+    
     
     console.log("query:" + query);
     connection.query(query, function(error, result, fields){
@@ -54,14 +62,14 @@ app.get('/asiakas', (req,res) => {
 });
 
 
-
+//DELETE
 app.delete('/asiakas/:id', (req,res) => {
 
     console.log("/asiakas. PARAMS:", req.params);
 
     let id = req.params.id;
 
-    let query = "DELETE FROM asiakas where ID = ?";
+    let query = "DELETE FROM asiakas where Henk_ID = ?";
 
     console.log("query: " + query);
 
@@ -85,6 +93,7 @@ app.delete('/asiakas/:id', (req,res) => {
 
 });
 
+//POST
 app.post('/asiakas', (req,res) => {
 
     console.log("/asiakas. BODY:" ,req.body);
@@ -123,6 +132,7 @@ app.post('/asiakas', (req,res) => {
 
 });
 
+//PUT
 app.put('/asiakas/:id', (req,res) => {
 
     console.log("/asiakas. PARAMS", req.params);
@@ -136,7 +146,7 @@ app.put('/asiakas/:id', (req,res) => {
 
     let id = req.params.id;
 
-    let query = "UPDATE asiakas SET Etunimi=?, Sukunimi=?, Osoite=?, Postinro=?, Postitmp=? WHERE ID=?";
+    let query = "UPDATE asiakas SET Etunimi=?, Sukunimi=?, Osoite=?, Postinro=?, Postitmp=? WHERE Henk_ID=?";
 
     console.log("query:" + query);
 
@@ -164,7 +174,7 @@ app.put('/asiakas/:id', (req,res) => {
 
 });
 
-/******************************* */
+
 
 app.get('*',function(req, res){
     console.log("R:", req.url);
