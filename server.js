@@ -8,7 +8,10 @@ let port = 3004;
 let hostname = "127.0.0.1";
 // http osoite: http://localhost:3004/asiakas/
 
+
 app.use(bodyParser.json());
+
+app.use(function(req,res,next){setTimeout(next,1000)});
 
 var cors = function (req, res, next)
 {
@@ -26,24 +29,80 @@ var connection = mysql.createConnection({
     user : 'root',      
     password : 'root',
     database : 'kandityo',
-    dateStrings : true
+    dateStrings : true,
 });
 
 //GET
 app.get('/asiakas', (req,res) => {
     
     console.log("/asiakas. REQ:", req.query);
-    let query = "SELECT * from asiakas";
 
-    let tunnus = req.query.Sahkoposti;
+    let id = req.query.Henk_ID || "";
 
-    let salasana = req.query.Salasana;
+    let etunimi = req.query.Etunimi || "";
 
+    let sukunimi = req.query.Sukunimi || "";
+
+    let osoite = req.query.Osoite || "";
+
+    let postinro = req.query.Postinro || "";
+
+    let postitmp = req.query.Postitmp || "";
+
+    let sahkoposti = req.query.Sahkoposti || "";
+
+    let salasana = req.query.Salasana || "";
+
+    let taulukko = [id];
+
+    let query = "SELECT Henk_ID, Etunimi, Sukunimi, Osoite, Postinro, Postitmp, Sahkoposti, Salasana from asiakas WHERE 1=1";
+
+    if (etunimi != "") {
+        query = query + " AND Etunimi = ? ";
+        taulukko.push(etunimi);
+    }
     
+
+    if (sukunimi != "") {
+        query = query + " AND Sukunimi = ? ";
+        taulukko.push(sukunimi);
+    }
+
+    if (osoite != "") {
+        query = query + " AND Osoite = ? "; 
+        taulukko.push(osoite);
+    }
+
+    if (postinro != "") {
+        query = query + " AND Postinro = ? ";
+        taulukko.push(postinro);
+    }
+        
     
+
+    if (postitmp != "") {
+        query = query + " AND Postitmp = ? ";
+        taulukko.push(postitmp);
+    }
+        
     
+
+    if (sahkoposti != "") {
+        query = query + " AND Sahkoposti = ? ";
+        taulukko.push(sahkoposti);
+    }
+        
+    
+
+    if (salasana != "") {
+        query = query + " AND Salasana = ? ";
+        taulukko.push(salasana);
+    }
+        
+    
+
     console.log("query:" + query);
-    connection.query(query, function(error, result, fields){
+    connection.query(query,[taulukko], function(error, result, fields){
 
         console.log("done")
         if ( error )
@@ -55,6 +114,7 @@ app.get('/asiakas', (req,res) => {
         {
             res.statusCode = 200;
             res.json(result);
+            console.log(taulukko)
         }
     });
 

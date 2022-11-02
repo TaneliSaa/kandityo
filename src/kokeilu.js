@@ -3,15 +3,9 @@ import { useEffect, useState } from "react"
 const Kirjautuminen = () => {
 
     //Etusivu
-    const [etunimi,setEtunimi] = useState("");
-    const [sukunimi,setSukunimi] = useState("");
-    const [osoite,setOsoite] = useState("");
-    const [postinro,setPostinro] = useState("");
-    const [postitmp,setPostitmp] = useState("");
-    const [sahkoposti,setSahkoposti] = useState("");
-    const [salasana,setSalasana] = useState("");
     const [haeQuery,setHaeQuery] = useState("");
     const [tableTiedot,setTableTiedot] = useState([]);
+    const [haeEtunimi,setHaeEtunimi] = useState("");
 
     //Formit
     const [kirjautumisForm,setKirjautumisForm] = useState(true);
@@ -24,7 +18,7 @@ const Kirjautuminen = () => {
     const [kirjautumisSalasana,setKirjautumisSalasana] = useState("");
     const [kirjautumisQuery,setKirjautumisQuery] = useState("");
     const [laskuri,setLaskuri] = useState(0);
-    const [kirjautumisTiedot,setKirjautumisTiedot] = useState([]);
+    
 
     //Rekisteröitymis jutut
     const [lisaaNimi,setLisaaNimi] = useState("");
@@ -37,7 +31,8 @@ const Kirjautuminen = () => {
     const [lisaaQuery,setLisaaQuery] = useState("");
 
     //Delete jutut
-    const [iidee,setIidee] = useState("");
+    const [poistaIidee,setPoistaIidee] = useState("");
+    const [poistaLaskuri,setPoistaLaskuri] = useState(0);
 
     //Muokkaa jutut
     const [muokkaaIidee,setMuokkaaIidee] = useState("");
@@ -46,7 +41,12 @@ const Kirjautuminen = () => {
     const [muokkaaOsoite,setMuokkaaOsoite] = useState("");
     const [muokkaaPostinro,setMuokkaaPostinro] = useState("");
     const [muokkaaPostitmp,setMuokkaaPostitmp] = useState("");
-    const [muokkaa,setMuokkaa] = useState(false);
+    const [muokkaaLaskuri,setMuokkaaLaskuri] = useState(0);
+    const [etunimi,setEtunimi] = useState("");
+    const [sukunimi,setSukunimi] = useState("");
+    const [osoite,setOsoite] = useState("");
+    const [postinro,setPostinro] = useState("");
+    const [postitmp,setPostitmp] = useState("");
 
 
 
@@ -155,11 +155,10 @@ const Kirjautuminen = () => {
 
         let m = "";
 
-        if (etunimi != "") {
-            m = "?Etunimi=" + etunimi;
+        if (haeEtunimi != "") {
+            m = "?Etunimi=" + haeEtunimi
         }
-
-
+        
         setHaeQuery(m);
 
         setLaskuri(laskuri + 1);
@@ -176,8 +175,8 @@ const Kirjautuminen = () => {
                 <td>{item.Osoite}</td>
                 <td>{item.Postinro}</td>
                 <td>{item.Postitmp}</td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setEtusivuForm(false) ; setMuokkaaForm(true)}}>Muokkaa</button></td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setIidee(e.target.id) ; handleFetch()}}>Poista</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setEtusivuForm(false) ; setMuokkaaForm(true) ; setEtunimi(item.Etunimi) ; setSukunimi(item.Sukunimi) ; setOsoite(item.Osoite) ; setPostinro(item.Postinro) ; setPostitmp(item.Postitmp) ; setMuokkaaEtunimi(item.Etunimi) ; setMuokkaaSukunimi(item.Sukunimi) ; setMuokkaaOsoite(item.Osoite) ; setMuokkaaPostinro(item.Postinro) ; setMuokkaaPostitmp(item.Postitmp)}}>Muokkaa</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setPoistaIidee(item.Henk_ID) ; setPoistaLaskuri(poistaLaskuri + 1) ; setLaskuri(laskuri + 1)}}>Poista</button></td>
             </tr>
         );
 
@@ -188,19 +187,22 @@ const Kirjautuminen = () => {
 
         const deleteAsiakas = async () => {
 
-            fetch("http://localhost:3004/asiakas/" + iidee, {
+            fetch("http://localhost:3004/asiakas/" + poistaIidee, {
                 method : 'DELETE'
             });
         }
 
 
-        if (iidee != "") {
-
+        
+        if (poistaLaskuri > 0) {
             deleteAsiakas();
-        };
+            setLaskuri(laskuri + 1);
+        }
+        
+      
 
 
-    },[iidee]);
+    },[poistaLaskuri]);
 
     //Muokkaamis effecti
     useEffect( () => {
@@ -223,18 +225,14 @@ const Kirjautuminen = () => {
 
         }
 
-        if (muokkaa == true) {
+        if (muokkaaLaskuri > 0) {
 
             muokkaaAsiakasta();
+            setLaskuri(laskuri + 1) ;
             
         }
 
-        setMuokkaa(false);
-
-
-        
-
-    },[muokkaa]);
+    },[muokkaaLaskuri]);
 
     
 
@@ -357,7 +355,7 @@ const Kirjautuminen = () => {
                         <label>
 
                             Etsi tietoja
-                            <input type="text" onChange={(e) => setEtunimi(e.target.value)}></input>
+                            <input type="text" onChange={(e) => setHaeEtunimi(e.target.value)}></input>
     
                         </label>
 
@@ -412,19 +410,19 @@ const Kirjautuminen = () => {
 
                 <form onSubmit={(e) => handleSubmit(e)}>
 
-                    <input type="text" onChange={(e) => setMuokkaaEtunimi(e.target.value)}></input>
+                    <input type="text" onChange={(e) => setMuokkaaEtunimi(e.target.value)} defaultValue={etunimi}></input>
 
-                    <input type="text" onChange={(e) => setMuokkaaSukunimi(e.target.value)}></input>
+                    <input type="text" onChange={(e) => setMuokkaaSukunimi(e.target.value)} defaultValue={sukunimi}></input>
 
-                    <input type="text" onChange={(e) => setMuokkaaOsoite(e.target.value)}></input>
+                    <input type="text" onChange={(e) => setMuokkaaOsoite(e.target.value)} defaultValue={osoite}></input>
 
-                    <input type="text" onChange={(e) => setMuokkaaPostinro(e.target.value)}></input>
+                    <input type="text" onChange={(e) => setMuokkaaPostinro(e.target.value)} defaultValue={postinro}></input>
 
-                    <input type="text" onChange={(e) => setMuokkaaPostitmp(e.target.value)}></input>
+                    <input type="text" onChange={(e) => setMuokkaaPostitmp(e.target.value)} defaultValue={postitmp}></input>
 
                     <button onClick={() => {setMuokkaaForm(false) ; setEtusivuForm(true)}}>Peruuta</button>
 
-                    <button onClick={() => {setMuokkaaForm(false) ; setMuokkaa(true) ; handleFetch() ; setEtusivuForm(true)}}>Tallenna</button>
+                    <button onClick={() => {setMuokkaaForm(false) ; setMuokkaaLaskuri(muokkaaLaskuri + 1) ; setLaskuri(laskuri + 1) ; setEtusivuForm(true)}}>Tallenna</button>
 
 
                 </form>
