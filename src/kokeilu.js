@@ -6,12 +6,18 @@ const Kirjautuminen = () => {
     const [haeQuery,setHaeQuery] = useState("");
     const [tableTiedot,setTableTiedot] = useState([]);
     const [haeEtunimi,setHaeEtunimi] = useState("");
-
+    const [haeSukunimi,setHaeSukunimi] = useState("");
+    const [haeOsoite,setHaeOsoite] = useState("");
+    const [haePostinro,setHaePostinro] = useState("");
+    const [haePostitmp,setHaePostitmp] = useState("");
+    
     //Formit
     const [kirjautumisForm,setKirjautumisForm] = useState(true);
     const [rekisteroitymisForm,setRekisteroitymisForm] = useState(false);
     const [etusivuForm,setEtusivuForm] = useState(false);
     const [muokkaaForm,setMuokkaaForm] = useState(false);
+    const [nettiKauppaForm,setNettiKauppaForm] = useState(false);
+    const [asiakasJuttuForm,setAsiakasJuttuForm] = useState(false);
 
     //Kirjautumis jutut
     const [kirjautumisTunnus,setKirjautumisTunnus] = useState("");
@@ -19,7 +25,6 @@ const Kirjautuminen = () => {
     const [kirjautumisQuery,setKirjautumisQuery] = useState("");
     const [laskuri,setLaskuri] = useState(0);
     
-
     //Rekisteröitymis jutut
     const [lisaaNimi,setLisaaNimi] = useState("");
     const [lisaaSukunimi,setLisaaSukunimi] = useState("");
@@ -175,8 +180,8 @@ const Kirjautuminen = () => {
                 <td>{item.Osoite}</td>
                 <td>{item.Postinro}</td>
                 <td>{item.Postitmp}</td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setEtusivuForm(false) ; setMuokkaaForm(true) ; setEtunimi(item.Etunimi) ; setSukunimi(item.Sukunimi) ; setOsoite(item.Osoite) ; setPostinro(item.Postinro) ; setPostitmp(item.Postitmp) ; setMuokkaaEtunimi(item.Etunimi) ; setMuokkaaSukunimi(item.Sukunimi) ; setMuokkaaOsoite(item.Osoite) ; setMuokkaaPostinro(item.Postinro) ; setMuokkaaPostitmp(item.Postitmp)}}>Muokkaa</button></td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setPoistaIidee(item.Henk_ID) ; setPoistaLaskuri(poistaLaskuri + 1) ; setLaskuri(laskuri + 1)}}>Poista</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setAsiakasJuttuForm(false) ; setMuokkaaForm(true) ; setEtunimi(item.Etunimi) ; setSukunimi(item.Sukunimi) ; setOsoite(item.Osoite) ; setPostinro(item.Postinro) ; setPostitmp(item.Postitmp) ; setMuokkaaEtunimi(item.Etunimi) ; setMuokkaaSukunimi(item.Sukunimi) ; setMuokkaaOsoite(item.Osoite) ; setMuokkaaPostinro(item.Postinro) ; setMuokkaaPostitmp(item.Postitmp)}}>Muokkaa</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setPoistaIidee(e.target.id) ; setPoistaLaskuri(poistaLaskuri + 1) ; handleFetch()}}>Poista</button></td>
             </tr>
         );
 
@@ -196,7 +201,7 @@ const Kirjautuminen = () => {
         
         if (poistaLaskuri > 0) {
             deleteAsiakas();
-            setLaskuri(laskuri + 1);
+            handleFetch();
         }
         
       
@@ -228,20 +233,13 @@ const Kirjautuminen = () => {
         if (muokkaaLaskuri > 0) {
 
             muokkaaAsiakasta();
-            setLaskuri(laskuri + 1) ;
+            handleFetch();
             
         }
 
     },[muokkaaLaskuri]);
 
     
-
-
-
-
-
-
-
     return (
 
         <div>
@@ -347,23 +345,16 @@ const Kirjautuminen = () => {
 
                 <div>
 
-                    <h1>TERVETULOA {kirjautumisTunnus}</h1>
+                    <h1>TERVETULOA ETUSIVULLE {kirjautumisTunnus}</h1>
 
 
                     <form onSubmit={(e) => handleSubmit(e)}>
 
-                        <label>
-
-                            Etsi tietoja
-                            <input type="text" onChange={(e) => setHaeEtunimi(e.target.value)}></input>
-    
-                        </label>
-
-                        <button onClick={() => {handleFetch()}}>Etsi</button>
-
                         <br></br>
 
-                        <button onClick={() => {}}>Omat tiedot</button>
+                        <button onClick={() => {setNettiKauppaForm(true) ; setEtusivuForm(false)}}>Nettikauppa</button>
+
+                        <button onClick={() => {setAsiakasJuttuForm(true) ; setEtusivuForm(false)}}>Asiakas taulukko juttu</button>
 
                         <br></br>
 
@@ -371,36 +362,7 @@ const Kirjautuminen = () => {
 
                     </form>
 
-                    <br></br>
-
-                    <table>
-
-                            <thead>
-
-                                <tr>
-                                    <th>Nimi</th>
-                                    <th>Sukunimi</th>
-                                    <th>Osoite</th>
-                                    <th>Postinumero</th>
-                                    <th>Postitoimipaikka</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                {data}
-
-                            </tbody>
-
-                        </table>
-
-                
                 </div>
-
-                
-                
-
-
 
                 : null
             }
@@ -420,9 +382,9 @@ const Kirjautuminen = () => {
 
                     <input type="text" onChange={(e) => setMuokkaaPostitmp(e.target.value)} defaultValue={postitmp}></input>
 
-                    <button onClick={() => {setMuokkaaForm(false) ; setEtusivuForm(true)}}>Peruuta</button>
+                    <button onClick={() => {setMuokkaaForm(false) ; setAsiakasJuttuForm(true)}}>Peruuta</button>
 
-                    <button onClick={() => {setMuokkaaForm(false) ; setMuokkaaLaskuri(muokkaaLaskuri + 1) ; setLaskuri(laskuri + 1) ; setEtusivuForm(true)}}>Tallenna</button>
+                    <button onClick={() => {setMuokkaaForm(false) ; setMuokkaaLaskuri(muokkaaLaskuri + 1) ; handleFetch() ; setAsiakasJuttuForm(true)}}>Tallenna</button>
 
 
                 </form>
@@ -430,12 +392,95 @@ const Kirjautuminen = () => {
 
                 : null
             }
+
+            {
+                nettiKauppaForm ? 
+
+                <div>
+
+                    <h1>TERVETULOA NETTIKAUPPAAN</h1>
+
+                    <form onSubmit={(e) => handleSubmit(e)}>
+
+
+                        <button onClick={(e) => {setNettiKauppaForm(false) ; setEtusivuForm(true)}}>Takaisin</button>
+
+                    </form>
+
+
+                </div>
                 
+                : null
+            }
 
-            
-            
+            {
+                asiakasJuttuForm ? 
 
-            
+                <div>
+
+                    <h1>TERVETULOA ASIAKASJUTTUUN!</h1>
+
+                    <form onSubmit={(e) => handleSubmit(e)}>
+
+                        <label>
+                            Etunimi
+                            <input type="text" onChange={(e) => setHaeEtunimi(e.target.value)}></input>
+                        </label>
+
+                        <label>
+                            Sukunimi
+                            <input type="text"></input>
+                        </label>
+
+                        <label>
+                            Osoite
+                            <input type="text"></input>
+                        </label>
+
+                        <label>
+                            Postinro
+                            <input type="text"></input>
+                        </label>
+
+                        <label>
+                            Postitmp
+                            <input type="text"></input>
+                        </label>
+
+                        <button onClick={() => {handleFetch()}}>Etsi Tiedot</button>
+
+                        <br></br>
+
+                        <button onClick={() => {setEtusivuForm(true) ; setAsiakasJuttuForm(false)}}>Takaisin</button>
+
+                    </form>
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Etunimi</th>
+                                <th>Sukunimi</th>
+                                <th>Osoite</th>
+                                <th>Postinro</th>
+                                <th>Postitmp</th>
+                            </tr>
+                        
+                        </thead>
+                        
+                        <tbody>
+                            {data}
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+                
+                : null
+            }
+
             
 
         </div>

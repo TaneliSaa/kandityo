@@ -53,7 +53,7 @@ app.get('/asiakas', (req,res) => {
 
     let salasana = req.query.Salasana || "";
 
-    let taulukko = [id];
+    let taulukko = [];
 
     let query = "SELECT Henk_ID, Etunimi, Sukunimi, Osoite, Postinro, Postitmp, Sahkoposti, Salasana from asiakas WHERE 1=1";
 
