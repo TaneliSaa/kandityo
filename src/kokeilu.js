@@ -161,8 +161,26 @@ const Kirjautuminen = () => {
         let m = "";
 
         if (haeEtunimi != "") {
-            m = "?Etunimi=" + haeEtunimi
+            m = "?Etunimi=" + haeEtunimi;
         }
+
+        if (haeSukunimi != "") {
+            m = "?Sukunimi=" + haeSukunimi;
+        }
+
+        if (haeOsoite != "") {
+            m = "?Osoite=" + haeOsoite
+        }
+
+        if (haePostinro != "") {
+            m = "?Postinro=" + haePostinro
+        }
+
+        if (haePostitmp != "") {
+            m = "?Postitmp=" + haePostitmp
+        }
+
+        
         
         setHaeQuery(m);
 
@@ -402,10 +420,32 @@ const Kirjautuminen = () => {
 
                     <form onSubmit={(e) => handleSubmit(e)}>
 
+                        
+
 
                         <button onClick={(e) => {setNettiKauppaForm(false) ; setEtusivuForm(true)}}>Takaisin</button>
+                        <button>Ostoskori</button>
 
                     </form>
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Esine</th>
+                                <th>Merkki</th>
+                                <th>Hinta</th>
+                                <th>Varastossa</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        </tbody>
+
+                    </table>
 
 
                 </div>
@@ -429,22 +469,22 @@ const Kirjautuminen = () => {
 
                         <label>
                             Sukunimi
-                            <input type="text"></input>
+                            <input type="text" onChange={(e) => setHaeSukunimi(e.target.value)}></input>
                         </label>
 
                         <label>
                             Osoite
-                            <input type="text"></input>
+                            <input type="text" onChange={(e) => setHaeOsoite(e.target.value)}></input>
                         </label>
 
                         <label>
                             Postinro
-                            <input type="text"></input>
+                            <input type="text" onChange={(e) => setHaePostinro(e.target.value)}></input>
                         </label>
 
                         <label>
                             Postitmp
-                            <input type="text"></input>
+                            <input type="text" onChange={(e) => setHaePostitmp(e.target.value)}></input>
                         </label>
 
                         <button onClick={() => {handleFetch()}}>Etsi Tiedot</button>
