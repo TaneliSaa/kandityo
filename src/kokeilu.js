@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useInsertionEffect, useState } from "react"
 
 const Kirjautuminen = () => {
 
-    //Etusivu
+    //Haku State muuttujat
     const [haeQuery,setHaeQuery] = useState("");
     const [tableTiedot,setTableTiedot] = useState([]);
     const [haeEtunimi,setHaeEtunimi] = useState("");
@@ -12,34 +12,25 @@ const Kirjautuminen = () => {
     const [haePostitmp,setHaePostitmp] = useState("");
     
     //Formit
-    const [kirjautumisForm,setKirjautumisForm] = useState(true);
-    const [rekisteroitymisForm,setRekisteroitymisForm] = useState(false);
-    const [etusivuForm,setEtusivuForm] = useState(false);
     const [muokkaaForm,setMuokkaaForm] = useState(false);
-    const [nettiKauppaForm,setNettiKauppaForm] = useState(false);
-    const [asiakasJuttuForm,setAsiakasJuttuForm] = useState(false);
+    const [lisaaForm,setLisaaForm] = useState(false);
 
-    //Kirjautumis jutut
-    const [kirjautumisTunnus,setKirjautumisTunnus] = useState("");
-    const [kirjautumisSalasana,setKirjautumisSalasana] = useState("");
-    const [kirjautumisQuery,setKirjautumisQuery] = useState("");
+    //Laskuri
     const [laskuri,setLaskuri] = useState(0);
     
-    //Rekisteröitymis jutut
+    //Lisäämis State muuttujat
     const [lisaaNimi,setLisaaNimi] = useState("");
     const [lisaaSukunimi,setLisaaSukunimi] = useState("");
     const [lisaaOsoite,setLisaaOsoite] = useState("");
     const [lisaaPostinro,setLisaaPostinro] = useState("");
     const [lisaaPostitmp,setLisaaPostitmp] = useState("");
-    const [lisaaSahkoposti,setLisaaSahkoposti] = useState("");
-    const [lisaaSalasana,setLisaaSalasana] = useState("");
     const [lisaaQuery,setLisaaQuery] = useState("");
 
-    //Delete jutut
+    //Delete State muuttujat
     const [poistaIidee,setPoistaIidee] = useState("");
     const [poistaLaskuri,setPoistaLaskuri] = useState(0);
 
-    //Muokkaa jutut
+    //Muokkaa State muuttujat
     const [muokkaaIidee,setMuokkaaIidee] = useState("");
     const [muokkaaEtunimi,setMuokkaaEtunimi] = useState("");
     const [muokkaaSukunimi,setMuokkaaSukunimi] = useState("");
@@ -53,140 +44,112 @@ const Kirjautuminen = () => {
     const [postinro,setPostinro] = useState("");
     const [postitmp,setPostitmp] = useState("");
 
-
-
     const handleSubmit = (event) => {
         event.preventDefault();
     }
 
-
-    //Kirjautumis effecti
+    //Get metodi
     useEffect( () => {
 
-        const TarkistaKirjautuminen = async () => {
-
-            let response = await fetch("http://localhost:3004/asiakas/" + kirjautumisQuery);
-
-            let c = await response.json();
-
-        }
-
-    });
-
-    
-
-    const handleKirjautuminen = () => {
-
-        let m = "";
-
-        m = kirjautumisTunnus + kirjautumisSalasana;
-
-        console.log(m);
-
-        setKirjautumisQuery(m);
-    }
-
-    
-
-    //Rekisteröitymis effecti
-    useEffect( () => {
-
-        const rekisteroidy = async () => {
-
-
-            fetch("http://localhost:3004/asiakas/", {
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json',
-                },
-                body : JSON.stringify({
-                    Etunimi : lisaaNimi,
-                    Sukunimi : lisaaSukunimi,
-                    Osoite : lisaaOsoite,
-                    Postinro : lisaaPostinro,
-                    Postitmp : lisaaPostitmp,
-                    Sahkoposti : lisaaSahkoposti,
-                    Salasana : lisaaSalasana
-                    
-                })
-            });
-
-        }
-
-        if (lisaaQuery != "") {
-
-            rekisteroidy();
-        }
-
-    },[lisaaQuery]);
-
-
-
-    const handlePost = () => {
-
-        let m  = "";
-
-        m = lisaaNimi + lisaaSukunimi + lisaaOsoite + lisaaPostinro + lisaaPostitmp + lisaaSahkoposti + lisaaSalasana;
-
-        setLisaaQuery(m);
-
-    }
-
-    //Etusivu effecti
-    useEffect( () => {
-
-        const fetchTiedot = async () => {
+        const haeTiedot = async () => {
 
             let response = await fetch("http://localhost:3004/asiakas" + haeQuery);
 
             let c = await response.json();
 
-            console.log(c);
+            console.log("Response.json() =" + c);
 
             setTableTiedot(c);
 
-        }
+            c.map((item,index) => {
 
-        
+                   console.log(index,item);
+            })
+
+        }
 
         if (laskuri > 0) {
 
-            fetchTiedot();
+            haeTiedot();
         }
 
     },[laskuri]);
 
+    //GET metodin handle
     const handleFetch = () => {
 
         let m = "";
 
-        if (haeEtunimi != "") {
+        if (haeEtunimi == "" && haeSukunimi =="" && haeOsoite == "" && haePostinro == "" && haePostitmp == "") {
+            m = ""
+        }
+
+        else if (haeEtunimi != "" && haeSukunimi != "" && haeOsoite !="" && haePostinro != "" && haePostitmp != "") {
+            m = "?Etunimi=" + haeEtunimi + "&Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite + "&Postinro=" + haePostinro + "&Postitmp=" + haePostitmp;
+        }
+
+        else if (haeEtunimi != "" && haeSukunimi !="" && haeOsoite !="" && haePostinro !="" && haePostitmp == "") {
+            m = "?Etunimi=" + haeEtunimi + "&Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite + "&Postinro=" + haePostinro;
+        }
+
+        else if (haeEtunimi != "" && haeSukunimi !="" && haeOsoite !="" && haePostinro =="" && haePostitmp == "") {
+            m = "?Etunimi=" + haeEtunimi + "&Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite;
+        }
+
+        else if (haeEtunimi != "" && haeSukunimi !="" && haeOsoite =="" && haePostinro =="" && haePostitmp == "") {
+            m = "?Etunimi=" + haeEtunimi + "&Sukunimi=" + haeSukunimi;
+        }
+
+        else if (haeEtunimi != "" && haeSukunimi =="" && haeOsoite =="" && haePostinro =="" && haePostitmp == "") {
             m = "?Etunimi=" + haeEtunimi;
         }
 
-        if (haeSukunimi != "") {
+        else if (haeEtunimi == "" && haeSukunimi != "" && haeOsoite !="" && haePostinro != "" && haePostitmp != "") {
+            m = "?Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite + "&Postinro=" + haePostinro + "&Postitmp=" + haePostitmp;
+        }
+
+        else if (haeEtunimi == "" && haeSukunimi != "" && haeOsoite !="" && haePostinro != "" && haePostitmp == "") {
+            m = "?Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite + "&Postinro=" + haePostinro;
+        }
+
+        else if (haeEtunimi == "" && haeSukunimi != "" && haeOsoite !="" && haePostinro == "" && haePostitmp == "") {
+            m = "?Sukunimi=" + haeSukunimi + "&Osoite=" + haeOsoite;
+        }
+
+        else if (haeEtunimi == "" && haeSukunimi != "" && haeOsoite =="" && haePostinro == "" && haePostitmp == "") {
             m = "?Sukunimi=" + haeSukunimi;
         }
 
-        if (haeOsoite != "") {
-            m = "?Osoite=" + haeOsoite
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite !="" && haePostinro != "" && haePostitmp != "") {
+            m = "?Osoite=" + haeOsoite + "&Postinro=" + haePostinro + "&Postitmp=" + haePostitmp;
         }
 
-        if (haePostinro != "") {
-            m = "?Postinro=" + haePostinro
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite !="" && haePostinro != "" && haePostitmp == "") {
+            m = "?Osoite=" + haeOsoite + "&Postinro=" + haePostinro;
         }
 
-        if (haePostitmp != "") {
-            m = "?Postitmp=" + haePostitmp
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite !="" && haePostinro == "" && haePostitmp == "") {
+            m = "?Osoite=" + haeOsoite;
         }
 
-        
-        
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite =="" && haePostinro != "" && haePostitmp != "") {
+            m = "?Postinro=" + haePostinro + "&Postitmp=" + haePostitmp;
+        }
+
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite =="" && haePostinro != "" && haePostitmp == "") {
+            m = "?Postinro=" + haePostinro;
+        }
+
+        else if (haeEtunimi == "" && haeSukunimi == "" && haeOsoite =="" && haePostinro == "" && haePostitmp != "") {
+            m = "?Postitmp=" + haePostitmp;
+        }
+
         setHaeQuery(m);
+
+        console.log("HAE QUERY: " + haeQuery);
 
         setLaskuri(laskuri + 1);
     }
-
 
     const data = tableTiedot.map( (item,index) => {
 
@@ -198,36 +161,95 @@ const Kirjautuminen = () => {
                 <td>{item.Osoite}</td>
                 <td>{item.Postinro}</td>
                 <td>{item.Postitmp}</td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setAsiakasJuttuForm(false) ; setMuokkaaForm(true) ; setEtunimi(item.Etunimi) ; setSukunimi(item.Sukunimi) ; setOsoite(item.Osoite) ; setPostinro(item.Postinro) ; setPostitmp(item.Postitmp) ; setMuokkaaEtunimi(item.Etunimi) ; setMuokkaaSukunimi(item.Sukunimi) ; setMuokkaaOsoite(item.Osoite) ; setMuokkaaPostinro(item.Postinro) ; setMuokkaaPostitmp(item.Postitmp)}}>Muokkaa</button></td>
-                <td><button id={item.Henk_ID} onClick={(e) => {setPoistaIidee(e.target.id) ; setPoistaLaskuri(poistaLaskuri + 1) ; handleFetch()}}>Poista</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setMuokkaaIidee(e.target.id) ; setMuokkaaForm(true) ; setEtunimi(item.Etunimi) ; setSukunimi(item.Sukunimi) ; setOsoite(item.Osoite) ; setPostinro(item.Postinro) ; setPostitmp(item.Postitmp) ; setMuokkaaEtunimi(item.Etunimi) ; setMuokkaaSukunimi(item.Sukunimi) ; setMuokkaaOsoite(item.Osoite) ; setMuokkaaPostinro(item.Postinro) ; setMuokkaaPostitmp(item.Postitmp)}}>Muokkaa</button></td>
+                <td><button id={item.Henk_ID} onClick={(e) => {setPoistaIidee(e.target.id) ; setPoistaLaskuri(poistaLaskuri + 1)}}>Poista</button></td>
             </tr>
         );
-
     });
 
-    //Poistamis effect
+    //POST metodi
     useEffect( () => {
 
-        const deleteAsiakas = async () => {
+        const lisaaAsiakas = async () => {
+
+            fetch("http://localhost:3004/asiakas/", {
+
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json',
+                },
+                body : JSON.stringify({
+                    Etunimi : lisaaNimi,
+                    Sukunimi : lisaaSukunimi,
+                    Osoite : lisaaOsoite,
+                    Postinro : lisaaPostinro,
+                    Postitmp : lisaaPostitmp
+                })
+            });
+        }
+
+        console.log(lisaaQuery);
+
+        if (lisaaQuery != "") {
+
+            lisaaAsiakas();     
+            
+        }
+
+        setLisaaQuery("");
+        setLisaaNimi("");
+        setLisaaSukunimi("");
+        setLisaaOsoite("");
+        setLisaaPostinro("");
+        setLisaaPostitmp("");
+        
+    },[lisaaQuery]);
+
+    const handlePost = () => {
+
+        let m  = [];
+
+        if (lisaaNimi != "") 
+            m.push(lisaaNimi);
+
+        if (lisaaSukunimi != "")
+            m.push(lisaaSukunimi);
+
+        if (lisaaOsoite != "")
+            m.push(lisaaOsoite);
+
+        if (lisaaPostinro != "") 
+            m.push(lisaaPostinro);
+
+        if (lisaaPostitmp != "") 
+            m.push(lisaaPostitmp);
+
+        setLisaaQuery(m);
+        
+
+        console.log("Handle post m listan tiedot:" + m);
+
+    }
+
+    //DELETE metodi
+    useEffect( () => {
+
+        const poistaAsiakas = async () => {
 
             fetch("http://localhost:3004/asiakas/" + poistaIidee, {
                 method : 'DELETE'
             });
         }
 
-
-        
         if (poistaLaskuri > 0) {
-            deleteAsiakas();
-            handleFetch();
+            poistaAsiakas();
         }
+
         
-      
-
-
+        
     },[poistaLaskuri]);
 
-    //Muokkaamis effecti
+    //PUT metodi
     useEffect( () => {
 
         const muokkaaAsiakasta = async () => {
@@ -251,9 +273,10 @@ const Kirjautuminen = () => {
         if (muokkaaLaskuri > 0) {
 
             muokkaaAsiakasta();
-            handleFetch();
             
         }
+
+       
 
     },[muokkaaLaskuri]);
 
@@ -262,266 +285,151 @@ const Kirjautuminen = () => {
 
         <div>
 
-            {
-                kirjautumisForm ?
+            <h1>TERVETULOA ASIAKASJUTTUUN!</h1>
 
-                <div>
+            <form onSubmit={(e) => handleSubmit(e)}>
+
+                <label>
+                    Etunimi
+                    <input type="text" onChange={(e) => setHaeEtunimi(e.target.value)}></input>
+                </label>
+
+                <label>
+                    Sukunimi
+                    <input type="text" onChange={(e) => setHaeSukunimi(e.target.value)}></input>
+                </label>
+
+                <label>
+                    Osoite
+                    <input type="text" onChange={(e) => setHaeOsoite(e.target.value)}></input>
+                </label>
+
+                <label>
+                     Postinro
+                    <input type="text" onChange={(e) => setHaePostinro(e.target.value)}></input>
+                </label>
+
+                <label>
+                    Postitmp
+                    <input type="text" onChange={(e) => setHaePostitmp(e.target.value)}></input>
+                </label>
+
+                <button onClick={() => {handleFetch()}}>Etsi Tiedot</button>
+                <button onClick={() => {setLisaaForm(true)}}>Lisää tietoja</button>
+
+            </form>
+
+            {
+                lisaaForm ?
                 
-                    <form onSubmit={(e) => handleSubmit(e)}>
+                    <div>
 
-                        <label>
-                            Sähköposti
-                            <input type="text" onChange={(e) => setKirjautumisTunnus(e.target.value)}></input>
-                        </label>
+                        <h2>Asiakkaiden lisäys</h2>
 
-                        <label>
-                            Salasana
-                            <input type="password" onChange={(e) => setKirjautumisSalasana(e.target.value)}></input>
-                        </label>
+                        <form onSubmit={(e) => handleSubmit(e)}>
+
+                            <label>
+                                Etunimi
+                                <input type="text" onChange={(e) => setLisaaNimi(e.target.value)}></input>
+                            </label>
+
+                            <label>
+                                Sukunimi
+                                <input type="text" onChange={(e) => setLisaaSukunimi(e.target.value)}></input>
+                            </label>
+
+                            <label>
+                                Osoite
+                                <input type="text" onChange={(e) => setLisaaOsoite(e.target.value)}></input>
+                            </label>
+
+                            <label>
+                                Postinumero
+                                <input type="text" onChange={(e) => setLisaaPostinro(e.target.value)}></input>
+                            </label>
+
+                            <label>
+                                Postitmp
+                                <input type="text" onChange={(e) => setLisaaPostitmp(e.target.value)}></input>
+                            </label>
+
+                            <button onClick={() => {handlePost() ; setLisaaForm(false)}}>Lisää asiakas</button>
+                            <button onClick={() => {setLisaaForm(false)}}>Takaisin</button>
                         
-                        <button onClick={() => {handleKirjautuminen() ; setKirjautumisForm(false) ; setEtusivuForm(true)}}>Kirjaudu</button>
+                        </form>
 
-                        <button onClick={() => {setKirjautumisForm(false) ; setRekisteroitymisForm(true)}}>Rekisteröidy</button>
-                    </form>
-
-                </div>
-
-                : null
-            }
-
-
-            {
-                rekisteroitymisForm ?
-
-                <div>
-
-                    <form onSubmit={(e) => handleSubmit(e)}>
-                        
-                        <label>
-                            Etunimi
-                            <input type="text" onChange={(e) => setLisaaNimi(e.target.value)}></input>
-                        </label>
-
-                        <br></br>
-
-                        <label>
-                            Sukunimi
-                            <input type="text" onChange={(e) => setLisaaSukunimi(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <label>
-                            Osoite
-                            <input type="text" onChange={(e) => setLisaaOsoite(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <label>
-                            Postinro
-                            <input type="text" onChange={(e) => setLisaaPostinro(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <label>
-                            Postitoimipaikka
-                            <input type="text" onChange={(e) => setLisaaPostitmp(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <label>
-                            Sähköposti
-                            <input type="text" onChange={(e) => setLisaaSahkoposti(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <label>
-                            Salasana
-                            <input type="text" onChange={(e) => setLisaaSalasana(e.target.value)}></input>
-                        </label>
-                        
-                        <br></br>
-
-                        <button onClick={() => {setRekisteroitymisForm(false) ; setKirjautumisForm(true)}}>Peruuta</button>
-                        <button onClick={() => {handlePost() ; setRekisteroitymisForm(false) ; setKirjautumisForm(true)}}>Rekisteröidy</button>
                 
-                    </form>
-
-                </div>
-
-                : null
-            }    
-
-            {
-                etusivuForm ?
-
-
-
-                <div>
-
-                    <h1>TERVETULOA ETUSIVULLE {kirjautumisTunnus}</h1>
-
-
-                    <form onSubmit={(e) => handleSubmit(e)}>
-
-                        <br></br>
-
-                        <button onClick={() => {setNettiKauppaForm(true) ; setEtusivuForm(false)}}>Nettikauppa</button>
-
-                        <button onClick={() => {setAsiakasJuttuForm(true) ; setEtusivuForm(false)}}>Asiakas taulukko juttu</button>
-
-                        <br></br>
-
-                        <button onClick={() => {setEtusivuForm(false) ; setKirjautumisForm(true)}}>Kirjaudu ulos</button>
-
-                    </form>
-
-                </div>
+                    </div>
 
                 : null
             }
 
             {
-                muokkaaForm ? 
+                muokkaaForm ?
 
-                <form onSubmit={(e) => handleSubmit(e)}>
+                    <div>
 
-                    <input type="text" onChange={(e) => setMuokkaaEtunimi(e.target.value)} defaultValue={etunimi}></input>
+                        <h2>Asiakkaiden muokkaus</h2>
 
-                    <input type="text" onChange={(e) => setMuokkaaSukunimi(e.target.value)} defaultValue={sukunimi}></input>
+                        <form onSubmit={(e) => handleSubmit(e)}>
 
-                    <input type="text" onChange={(e) => setMuokkaaOsoite(e.target.value)} defaultValue={osoite}></input>
+                            <label>
+                                Etunimi
+                                <input type="text" onChange={(e) => setMuokkaaEtunimi(e.target.value)} defaultValue={etunimi}></input>
+                            </label>
+                            
+                            <label>
+                                Sukunimi
+                                <input type="text" onChange={(e) => setMuokkaaSukunimi(e.target.value)} defaultValue={sukunimi}></input>
+                            </label>
 
-                    <input type="text" onChange={(e) => setMuokkaaPostinro(e.target.value)} defaultValue={postinro}></input>
+                            <label>
+                                Osoite
+                                <input type="text" onChange={(e) => setMuokkaaOsoite(e.target.value)} defaultValue={osoite}></input>
+                            </label>
 
-                    <input type="text" onChange={(e) => setMuokkaaPostitmp(e.target.value)} defaultValue={postitmp}></input>
+                            <label>
+                                Postinro
+                                <input type="text" onChange={(e) => setMuokkaaPostinro(e.target.value)} defaultValue={postinro}></input>
+                            </label>
 
-                    <button onClick={() => {setMuokkaaForm(false) ; setAsiakasJuttuForm(true)}}>Peruuta</button>
+                            <label>
+                                Postitmp
+                                <input type="text" onChange={(e) => setMuokkaaPostitmp(e.target.value)} defaultValue={postitmp}></input>
+                            </label>
 
-                    <button onClick={() => {setMuokkaaForm(false) ; setMuokkaaLaskuri(muokkaaLaskuri + 1) ; handleFetch() ; setAsiakasJuttuForm(true)}}>Tallenna</button>
+                            <button onClick={() => {setMuokkaaForm(false)}}>Peruuta</button>
 
+                            <button onClick={() => {setMuokkaaForm(false) ; setMuokkaaLaskuri(muokkaaLaskuri + 1)}}>Tallenna</button>
 
-                </form>
+                        </form>
 
+                    </div>
 
                 : null
             }
 
-            {
-                nettiKauppaForm ? 
+            <table>
 
-                <div>
+                <thead>
 
-                    <h1>TERVETULOA NETTIKAUPPAAN</h1>
+                    <tr>
+                        <th>Etunimi</th>
+                        <th>Sukunimi</th>
+                        <th>Osoite</th>
+                        <th>Postinro</th>
+                        <th>Postitmp</th>
+                    </tr>
 
-                    <form onSubmit={(e) => handleSubmit(e)}>
+                </thead>
 
-                        
+                <tbody>
 
+                    {data}
 
-                        <button onClick={(e) => {setNettiKauppaForm(false) ; setEtusivuForm(true)}}>Takaisin</button>
-                        <button>Ostoskori</button>
+                </tbody>
 
-                    </form>
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>Esine</th>
-                                <th>Merkki</th>
-                                <th>Hinta</th>
-                                <th>Varastossa</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                        </tbody>
-
-                    </table>
-
-
-                </div>
-                
-                : null
-            }
-
-            {
-                asiakasJuttuForm ? 
-
-                <div>
-
-                    <h1>TERVETULOA ASIAKASJUTTUUN!</h1>
-
-                    <form onSubmit={(e) => handleSubmit(e)}>
-
-                        <label>
-                            Etunimi
-                            <input type="text" onChange={(e) => setHaeEtunimi(e.target.value)}></input>
-                        </label>
-
-                        <label>
-                            Sukunimi
-                            <input type="text" onChange={(e) => setHaeSukunimi(e.target.value)}></input>
-                        </label>
-
-                        <label>
-                            Osoite
-                            <input type="text" onChange={(e) => setHaeOsoite(e.target.value)}></input>
-                        </label>
-
-                        <label>
-                            Postinro
-                            <input type="text" onChange={(e) => setHaePostinro(e.target.value)}></input>
-                        </label>
-
-                        <label>
-                            Postitmp
-                            <input type="text" onChange={(e) => setHaePostitmp(e.target.value)}></input>
-                        </label>
-
-                        <button onClick={() => {handleFetch()}}>Etsi Tiedot</button>
-
-                        <br></br>
-
-                        <button onClick={() => {setEtusivuForm(true) ; setAsiakasJuttuForm(false)}}>Takaisin</button>
-
-                    </form>
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>Etunimi</th>
-                                <th>Sukunimi</th>
-                                <th>Osoite</th>
-                                <th>Postinro</th>
-                                <th>Postitmp</th>
-                            </tr>
-                        
-                        </thead>
-                        
-                        <tbody>
-                            {data}
-                        </tbody>
-
-                    </table>
-
-
-                </div>
-                
-                : null
-            }
-
-            
+            </table>
 
         </div>
     );
